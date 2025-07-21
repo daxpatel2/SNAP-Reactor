@@ -144,6 +144,7 @@ public class ReactorSimulatorApp extends JFrame {
         fuelConsumptionSlider.setPaintLabels(true);
         
         // Control rods table
+        // extra dummy text
         String[] columnNames = {"Rod ID", "Insertion Level", "Operational", "Effectiveness"};
         controlRodsTableModel = new DefaultTableModel(columnNames, 0);
         controlRodsTable = new JTable(controlRodsTableModel);
