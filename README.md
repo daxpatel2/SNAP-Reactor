@@ -91,8 +91,6 @@ reactor-simulator/
 
 ### 1. Start with Basic Tests
 
-Begin by exploring the `ReactorTest.java` file. It demonstrates:
-
 - **Constructor testing** - Verifying object creation
 - **Getter/Setter testing** - Testing basic property access
 - **Exception testing** - Using `assertThatThrownBy()`
@@ -275,35 +273,6 @@ void shouldInitializeTenControlRods() {
 }
 ```
 
-## 🎯 Practice Exercises
-
-### Beginner Level
-
-1. **Add a new test** for the `Reactor.getEfficiency()` method
-2. **Create parameterized tests** for different fuel levels
-3. **Test edge cases** like maximum/minimum values
-
-### Intermediate Level
-
-1. **Add integration tests** that test reactor startup → operation → shutdown sequence
-2. **Create tests** for the `ControlRod.simulateMovement()` method
-3. **Add performance tests** for the monitoring service
-
-### Advanced Level
-
-1. **Create custom AssertJ assertions** for reactor-specific validations
-2. **Add test data builders** for creating test reactors with different configurations
-3. **Implement test factories** for generating test scenarios
-
-## 🛠️ Customization Ideas
-
-### Add New Features
-
-1. **Cooling System** - Add temperature control mechanisms
-2. **Safety Systems** - Implement emergency protocols
-3. **Fuel Management** - Add fuel rod simulation
-4. **Power Grid Integration** - Simulate power distribution
-
 ### Extend Testing
 
 1. **Performance Testing** - Add JMH benchmarks
@@ -311,25 +280,9 @@ void shouldInitializeTenControlRods() {
 3. **Mutation Testing** - Use PIT for mutation testing
 4. **Contract Testing** - Add Pact for service contracts
 
-## 📖 Additional Resources
+## 📖 Docs
 
 - [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
 - [AssertJ Documentation](https://assertj.github.io/doc/)
 - [Testing Best Practices](https://martinfowler.com/articles/practical-test-pyramid.html)
 - [Java Testing Patterns](https://github.com/testcontainers/testcontainers-java)
-
-## 🤝 Contributing
-
-Feel free to:
-- Add new test scenarios
-- Improve existing tests
-- Add new reactor components
-- Enhance the documentation
-
-## 📄 License
-
-This project is created for educational purposes. Feel free to use and modify as needed for learning testing practices.
-
----
-
-**Happy Testing! 🧪✨** 
