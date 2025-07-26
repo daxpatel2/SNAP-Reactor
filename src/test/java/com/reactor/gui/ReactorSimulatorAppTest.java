@@ -1,5 +1,7 @@
 package com.reactor.gui;
 
+import com.reactor.model.Reactor;
+import com.reactor.service.ReactorMonitorService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +17,7 @@ class ReactorSimulatorAppTest {
     @DisplayName("Should create application instance")
     void shouldCreateApplicationInstance() {
         // Given & When
-        ReactorSimulatorApp app = new ReactorSimulatorApp();
+        ReactorSimulatorApp app = new ReactorSimulatorApp(new Reactor("1","3 Mile Island"), new ReactorMonitorService());
 
         // Then
         assertThat(app).isNotNull();

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+
 /**
  * Service class for monitoring and analyzing reactor operations.
  * Provides various methods for reactor analysis and safety monitoring.
@@ -66,6 +68,11 @@ public class ReactorMonitorService {
         }
         
         report.setHealthScore(calculateHealthScore(reactor));
+
+        if (isNull(report)) {
+            System.out.println("No reactor health report");
+        }
+
         return report;
     }
     
@@ -221,11 +228,7 @@ public class ReactorMonitorService {
         long nonOperationalRods = reactor.getControlRods().stream()
                 .filter(rod -> !rod.isOperational())
                 .count();
-        if (nonOperationalRods > 2) {
-            return true;
-        }
-        
-        return false;
+        return nonOperationalRods > 2;
     }
     
     /**

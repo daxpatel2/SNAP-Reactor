@@ -17,7 +17,7 @@ public class Reactor {
     private double powerOutput; // in MW
     private double fuelLevel; // percentage
     private ReactorStatus status;
-    private List<ControlRod> controlRods;
+    private final List<ControlRod> controlRods;
     private LocalDateTime lastMaintenance;
     private int operationalHours;
     
@@ -150,11 +150,60 @@ public class Reactor {
         
         powerOutput = targetPower;
         
-        // Adjust temperature based on power
-        temperature = 300.0 + (targetPower / 1000.0) * 200.0;
+        // Calculate temperature and pressure directly instead of using simulatePowerEffects
+        // to avoid potential circular calls
+        double baseTemp = 25.0;
+        double powerTempIncrease = (targetPower / 1200.0) * 400.0;
+        temperature = baseTemp + powerTempIncrease;
+
+        double basePressure = 0.1;
+        double powerPressureIncrease = (targetPower / 1200.0) * 19.9;
+        pressure = basePressure + powerPressureIncrease;
+    }
+    
+    /**
+     * Simulate the effects of power changes on temperature and pressure.
+     */
+    private void simulatePowerEffects(double power) {
+        // Base temperature at 25°C, increases with power
+        double baseTemp = 25.0;
+        double powerTempIncrease = (power / 1200.0) * 400.0; // Max 425°C at full power
+        temperature = baseTemp + powerTempIncrease;
         
-        // Adjust pressure based on power
-        pressure = 15.0 + (targetPower / 1000.0) * 5.0;
+        // Base pressure at 0.1 MPa, increases with power
+        double basePressure = 0.1;
+        double powerPressureIncrease = (power / 1200.0) * 19.9; // Max 20 MPa at full power
+        pressure = basePressure + powerPressureIncrease;
+        
+        // We don't call simulateControlRodEffects() here to avoid infinite recursion
+    }
+
+    /**
+     * Simulate the effects of control rod positions on reactor behavior.
+     */
+    private void simulateControlRodEffects() {
+        if (status != ReactorStatus.OPERATIONAL) return;
+
+        double averageInsertion = controlRods.stream()
+                .mapToDouble(ControlRod::getInsertionLevel)
+                .average()
+                .orElse(0.0);
+
+        // Control rods affect power output
+        double powerReduction = (averageInsertion / 100.0) * 0.3; // Max 30% power reduction
+        double adjustedPower = powerOutput * (1 - powerReduction);
+
+        // Update power without calling simulatePowerEffects to avoid infinite recursion
+        powerOutput = Math.max(0, adjustedPower);
+
+        // Calculate temperature and pressure directly
+        double baseTemp = 25.0;
+        double powerTempIncrease = (powerOutput / 1200.0) * 400.0;
+        temperature = baseTemp + powerTempIncrease;
+
+        double basePressure = 0.1;
+        double powerPressureIncrease = (powerOutput / 1200.0) * 19.9;
+        pressure = basePressure + powerPressureIncrease;
     }
     
     public void insertControlRod(String rodId, double insertionLevel) {
@@ -163,17 +212,23 @@ public class Reactor {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Control rod not found: " + rodId));
         
+        // Simulate gradual movement
+        double currentLevel = rod.getInsertionLevel();
+        double movement = insertionLevel - currentLevel;
+        
+        if (Math.abs(movement) > 0.1) {
+            // Set movement speed based on distance
+            double speed = Math.min(5.0, Math.abs(movement) / 10.0); // 5% per second max
+            rod.setCurrentInsertionSpeed(movement > 0 ? speed : -speed);
+        } else {
+            rod.setCurrentInsertionSpeed(0.0);
+        }
+        
         rod.setInsertionLevel(insertionLevel);
         
-        // Adjust power based on control rod insertion
+        // Simulate effects of control rod movement
         if (status == ReactorStatus.OPERATIONAL) {
-            double averageInsertion = controlRods.stream()
-                    .mapToDouble(ControlRod::getInsertionLevel)
-                    .average()
-                    .orElse(0.0);
-            
-            double powerReduction = (averageInsertion / 100.0) * 0.5;
-            powerOutput = Math.max(0, powerOutput * (1 - powerReduction));
+            simulateControlRodEffects();
         }
     }
     
@@ -214,6 +269,55 @@ public class Reactor {
         status = ReactorStatus.SHUTDOWN;
     }
     
+    /**
+     * Simulate automatic reactor behavior over time.
+     */
+    public void simulateTimeStep(double seconds) {
+        if (status != ReactorStatus.OPERATIONAL) return;
+        
+        // Simulate control rod movement
+        for (ControlRod rod : controlRods) {
+            if (rod.getCurrentInsertionSpeed() != 0) {
+                double currentLevel = rod.getInsertionLevel();
+                double newLevel = currentLevel + (rod.getCurrentInsertionSpeed() * seconds);
+                rod.setInsertionLevel(Math.max(0, Math.min(100, newLevel)));
+                
+                // Stop movement if target reached
+                if (Math.abs(newLevel - currentLevel) < 0.1) {
+                    rod.setCurrentInsertionSpeed(0.0);
+                }
+            }
+        }
+        
+        // Simulate fuel consumption
+        double fuelConsumption = (powerOutput / 1000.0) * (seconds / 3600.0) * 0.1;
+        fuelLevel = Math.max(0, fuelLevel - fuelConsumption);
+        
+        // Simulate temperature and pressure fluctuations
+        simulateEnvironmentalFluctuations(seconds);
+        
+        // Check for maintenance needs
+        if (fuelLevel < 5.0) {
+            status = ReactorStatus.MAINTENANCE;
+        }
+    }
+    
+    /**
+     * Simulate environmental fluctuations in temperature and pressure.
+     */
+    private void simulateEnvironmentalFluctuations(double seconds) {
+        // Small random fluctuations
+        double tempFluctuation = (Math.random() - 0.5) * 2.0; // ±1°C
+        double pressureFluctuation = (Math.random() - 0.5) * 0.2; // ±0.1 MPa
+        
+        temperature += tempFluctuation * (seconds / 60.0); // Gradual change
+        pressure += pressureFluctuation * (seconds / 60.0);
+        
+        // Ensure values stay within reasonable bounds
+        temperature = Math.max(25.0, Math.min(600.0, temperature));
+        pressure = Math.max(0.1, Math.min(25.0, pressure));
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -229,7 +333,6 @@ public class Reactor {
     
     @Override
     public String toString() {
-        return String.format("Reactor{id='%s', name='%s', status=%s, power=%.1f MW, temp=%.1f°C}", 
-                id, name, status, powerOutput, temperature);
+        return String.format("Reactor{id='%s', name='%s', status=%s, power=%.1f MW, temp=%.1f°C}", (Object) id, (Object) name, (Object) status, (Object) powerOutput, (Object) temperature);
     }
 } 

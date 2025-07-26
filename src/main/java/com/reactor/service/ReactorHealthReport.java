@@ -12,10 +12,11 @@ public class ReactorHealthReport {
     private String reactorId;
     private LocalDateTime analysisTime;
     private double healthScore;
-    private List<String> warnings;
+    private final List<String> warnings;
     
     public ReactorHealthReport() {
         this.warnings = new ArrayList<>();
+        this.healthScore = 0;
     }
     
     // Getters and Setters
@@ -28,7 +29,7 @@ public class ReactorHealthReport {
     public double getHealthScore() { return healthScore; }
     public void setHealthScore(double healthScore) { this.healthScore = healthScore; }
     
-    public List<String> getWarnings() { return new ArrayList<>(warnings); }
+    public List<String> getWarnings() { return warnings; }
     
     public void addWarning(String warning) {
         this.warnings.add(warning);
@@ -52,7 +53,7 @@ public class ReactorHealthReport {
     
     @Override
     public String toString() {
-        return String.format("ReactorHealthReport{reactorId='%s', healthScore=%.1f, warnings=%d}", 
-                reactorId, healthScore, warnings.size());
+        return String.format("ReactorHealthReport{reactorId='%s', healthScore=%.1f, warnings=%d}",
+                (Object) reactorId, (Object) healthScore, (Object) warnings.size());
     }
 } 

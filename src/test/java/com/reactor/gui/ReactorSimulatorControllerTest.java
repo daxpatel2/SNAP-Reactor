@@ -14,10 +14,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.swing.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.clearInvocations;
 
 /**
  * Comprehensive test class for the ReactorSimulatorApp Swing application using JUnit 5, AssertJ, and Mockito.
@@ -33,13 +36,18 @@ class ReactorSimulatorControllerTest {
     @Mock private ReactorMonitorService mockMonitorService;
     @Mock private ReactorHealthReport mockHealthReport;
     @Mock private PerformanceReport mockPerformanceReport;
-//    @Mock private JFrame mockJFrame;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InterruptedException, InvocationTargetException {
+        when(mockMonitorService.analyzeHealth(mockReactor)).thenReturn(mockHealthReport);
+        when(mockHealthReport.getHealthScore()).thenReturn(99.0);
+
+        when(mockMonitorService.generatePerformanceReport(mockReactor)).thenReturn(mockPerformanceReport);
+        when(mockPerformanceReport.getCurrentPower()).thenReturn(99.0);
+
         // Create the Swing application
-        SwingUtilities.invokeLater(() -> {
-            app = new ReactorSimulatorApp();
+        SwingUtilities.invokeAndWait(() -> {
+            app = new ReactorSimulatorApp(new Reactor("1","3 Mile Island"), new ReactorMonitorService());
             // Mock the reactor and services
             app.reactor = mockReactor;
             app.monitorService = mockMonitorService;
@@ -48,6 +56,7 @@ class ReactorSimulatorControllerTest {
         // Wait for Swing to initialize
         try {
             Thread.sleep(100);
+
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -58,15 +67,18 @@ class ReactorSimulatorControllerTest {
     class ApplicationCreationTests {
 
         @Test
+        @DisplayName("Assert that app is not null")
+        void assertApplicationIsNotNull() {
+            assertThat(app).isNotNull();
+        }
+
+        @Test
         @DisplayName("Should create Swing application successfully")
         void shouldCreateSwingApplicationSuccessfully() {
-            // Given & When
-            ReactorSimulatorApp testApp = new ReactorSimulatorApp();
 
-            // Then
-            assertThat(testApp).isNotNull();
-            assertThat(testApp).isInstanceOf(JFrame.class);
-            assertThat(testApp.getTitle()).isEqualTo("Nuclear Reactor Simulator");
+            assertThat(app).isInstanceOf(JFrame.class);
+            assertThat(app.getTitle()).isEqualTo("Nuclear Reactor Simulator - Interactive Controls");
+            assertThatCode(() -> app.setVisible(true)).doesNotThrowAnyException();
         }
 
         @Test
@@ -101,6 +113,7 @@ class ReactorSimulatorControllerTest {
         @Test
         @DisplayName("Should handle startup failure")
         void shouldHandleStartupFailure() {
+
             // Given
             String errorMessage = "Insufficient fuel level for startup";
             doThrow(new IllegalStateException(errorMessage)).when(mockReactor).startUp();
@@ -318,7 +331,7 @@ class ReactorSimulatorControllerTest {
             Reactor realReactor = new Reactor("R-001", "Test Reactor");
             ReactorMonitorService realService = new ReactorMonitorService();
 
-            ReactorSimulatorApp testApp = new ReactorSimulatorApp();
+            ReactorSimulatorApp testApp = new ReactorSimulatorApp(new Reactor("1","3 Mile Island"), new ReactorMonitorService());
             testApp.reactor = realReactor;
             testApp.monitorService = realService;
 
@@ -394,7 +407,7 @@ class ReactorSimulatorControllerTest {
             when(mockMonitorService.analyzeHealth(mockReactor)).thenReturn(mockHealthReport);
             when(mockHealthReport.getHealthScore()).thenReturn(85.5);
             when(mockHealthReport.hasWarnings()).thenReturn(true);
-            when(mockHealthReport.getWarnings()).thenReturn(Arrays.asList("High temperature detected"));
+            when(mockHealthReport.getWarnings()).thenReturn(List.of("High temperature detected"));
             when(mockMonitorService.isOperatingSafely(mockReactor)).thenReturn(false);
 
             // When
@@ -409,6 +422,8 @@ class ReactorSimulatorControllerTest {
 
             verify(mockMonitorService).analyzeHealth(mockReactor);
             verify(mockMonitorService).isOperatingSafely(mockReactor);
+            verify(mockMonitorService, times(2)).analyzeHealth(mockReactor);
+
         }
 
         @Test
