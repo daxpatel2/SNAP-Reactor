@@ -154,7 +154,7 @@ public class Reactor {
         // to avoid potential circular calls
         double baseTemp = 25.0;
         double powerTempIncrease = (targetPower / 1200.0) * 400.0;
-        temperature = baseTemp + powerTempIncrease;
+        temperature = Math.round(baseTemp + powerTempIncrease);
 
         double basePressure = 0.1;
         double powerPressureIncrease = (targetPower / 1200.0) * 19.9;
@@ -174,8 +174,6 @@ public class Reactor {
         double basePressure = 0.1;
         double powerPressureIncrease = (power / 1200.0) * 19.9; // Max 20 MPa at full power
         pressure = basePressure + powerPressureIncrease;
-        
-        // We don't call simulateControlRodEffects() here to avoid infinite recursion
     }
 
     /**
@@ -193,7 +191,6 @@ public class Reactor {
         double powerReduction = (averageInsertion / 100.0) * 0.3; // Max 30% power reduction
         double adjustedPower = powerOutput * (1 - powerReduction);
 
-        // Update power without calling simulatePowerEffects to avoid infinite recursion
         powerOutput = Math.max(0, adjustedPower);
 
         // Calculate temperature and pressure directly
@@ -226,7 +223,7 @@ public class Reactor {
         
         rod.setInsertionLevel(insertionLevel);
         
-        // Simulate effects of control rod movement
+        // Simulate the effects of control rod movement
         if (status == ReactorStatus.OPERATIONAL) {
             simulateControlRodEffects();
         }

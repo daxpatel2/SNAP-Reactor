@@ -448,9 +448,7 @@ public class ReactorSimulatorApp extends JFrame {
         });
         
         fuelConsumptionSlider.addChangeListener(e -> {
-            if (reactor.isOperational()) {
-                // Handle fuel consumption changes
-            }
+            reactor.isOperational();// Handle fuel consumption changes
         });
         
         // Temperature and pressure sliders
@@ -662,22 +660,20 @@ public class ReactorSimulatorApp extends JFrame {
      */
     private void updatePerformanceArea() {
         PerformanceReport report = monitorService.generatePerformanceReport(reactor);
-        StringBuilder performance = new StringBuilder();
+
+        String performance = "=== PERFORMANCE REPORT ===\n\n" +
+                "Power Output: " + String.format("%.1f MW", report.getCurrentPower()) + "\n" +
+                "Efficiency: " + String.format("%.1f%%", report.getCurrentEfficiency()) + "\n" +
+                "Fuel Level: " + String.format("%.1f%%", report.getFuelLevel()) + "\n" +
+                "Operational Hours: " + report.getOperationalHours() + "\n" +
+                "Performance Grade: " + report.getPerformanceGrade() + "\n" +
+                "Power Utilization: " + String.format("%.1f%%", report.getPowerUtilization()) + "\n" +
+                "\n=== OPERATIONAL STATUS ===\n" +
+                "Optimal Power: " + (report.isOperatingAtOptimalPower() ? "✅" : "❌") + "\n" +
+                "Optimal Efficiency: " + (report.isOperatingAtOptimalEfficiency() ? "✅" : "❌") + "\n" +
+                "Fuel Refill Needed: " + (report.needsFuelRefill() ? "⚠" : "✅") + "\n";
         
-        performance.append("=== PERFORMANCE REPORT ===\n\n");
-        performance.append("Power Output: ").append(String.format("%.1f MW", report.getCurrentPower())).append("\n");
-        performance.append("Efficiency: ").append(String.format("%.1f%%", report.getCurrentEfficiency())).append("\n");
-        performance.append("Fuel Level: ").append(String.format("%.1f%%", report.getFuelLevel())).append("\n");
-        performance.append("Operational Hours: ").append(report.getOperationalHours()).append("\n");
-        performance.append("Performance Grade: ").append(report.getPerformanceGrade()).append("\n");
-        performance.append("Power Utilization: ").append(String.format("%.1f%%", report.getPowerUtilization())).append("\n");
-        
-        performance.append("\n=== OPERATIONAL STATUS ===\n");
-        performance.append("Optimal Power: ").append(report.isOperatingAtOptimalPower() ? "✅" : "❌").append("\n");
-        performance.append("Optimal Efficiency: ").append(report.isOperatingAtOptimalEfficiency() ? "✅" : "❌").append("\n");
-        performance.append("Fuel Refill Needed: ").append(report.needsFuelRefill() ? "⚠" : "✅").append("\n");
-        
-        performanceArea.setText(performance.toString());
+        performanceArea.setText(performance);
     }
     
     /**
