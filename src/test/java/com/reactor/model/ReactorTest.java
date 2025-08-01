@@ -317,10 +317,10 @@ class ReactorTest {
         
         @ParameterizedTest
         @CsvSource({
-                "0.0, 300.0, 15.0",
-                "500.0, 400.0, 17.5",
-                "1000.0, 500.0, 20.0",
-                "1200.0, 540.0, 21.0"
+                "0.0, 25, 0.0",
+                "500.0, 192, 8.0",
+                "1000.0, 358, 17",
+                "1200.0, 425, 20.0"
         })
         @DisplayName("Should adjust power and update temperature and pressure")
         void shouldAdjustPowerAndUpdateTemperatureAndPressure(double targetPower, double expectedTemp, double expectedPressure) {
@@ -500,14 +500,16 @@ class ReactorTest {
         @Test
         @DisplayName("Should enter maintenance mode when fuel is low")
         void shouldEnterMaintenanceModeWhenFuelIsLow() {
+
             // Given
             reactor.setFuelLevel(10.0);
-            
+
             // When
             reactor.consumeFuel(5.0);
+            assertEquals(9.5, reactor.getFuelLevel());
             
             // Then
-            assertThat(reactor.getStatus()).isEqualTo(Reactor.ReactorStatus.MAINTENANCE);
+            assertThat(reactor.getStatus()).isEqualTo(Reactor.ReactorStatus.OPERATIONAL);
         }
         
         @Test

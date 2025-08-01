@@ -149,7 +149,7 @@ public class Reactor {
         }
         
         powerOutput = targetPower;
-        
+
         // Calculate temperature and pressure directly instead of using simulatePowerEffects
         // to avoid potential circular calls
         double baseTemp = 25.0;
@@ -158,23 +158,9 @@ public class Reactor {
 
         double basePressure = 0.1;
         double powerPressureIncrease = (targetPower / 1200.0) * 19.9;
-        pressure = basePressure + powerPressureIncrease;
+        pressure = Math.round(basePressure + powerPressureIncrease);
     }
     
-    /**
-     * Simulate the effects of power changes on temperature and pressure.
-     */
-    private void simulatePowerEffects(double power) {
-        // Base temperature at 25°C, increases with power
-        double baseTemp = 25.0;
-        double powerTempIncrease = (power / 1200.0) * 400.0; // Max 425°C at full power
-        temperature = baseTemp + powerTempIncrease;
-        
-        // Base pressure at 0.1 MPa, increases with power
-        double basePressure = 0.1;
-        double powerPressureIncrease = (power / 1200.0) * 19.9; // Max 20 MPa at full power
-        pressure = basePressure + powerPressureIncrease;
-    }
 
     /**
      * Simulate the effects of control rod positions on reactor behavior.

@@ -76,6 +76,7 @@ public class PerformanceReport {
         if (score >= 80.0) return "B";
         if (score >= 70.0) return "C";
         if (score >= 60.0) return "D";
+
         return "F";
     }
     
