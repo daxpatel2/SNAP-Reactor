@@ -19,19 +19,20 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Install Xvfb for GUI support
+        
+      - name: Install Xvfb
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
-      - name: Start virtual display (Xvfb)
+      - name: Start Xvfb
         run: |
-          Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
-          echo "Xvfb started on :99"
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 1920x1080x24 &
 
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Verify Xvfb running
+        run: xdpyinfo -display :99 || (echo "Xvfb not running" && exit 1)
 
-      - name: Run Maven tests with GUI
+      - name: Run tests with GUI support
         env:
           DISPLAY: :99
+          _JAVA_OPTIONS: "-Djava.awt.headless=false"
         run: mvn -B clean test
