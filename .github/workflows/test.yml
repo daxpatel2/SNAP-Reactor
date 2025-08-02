@@ -39,3 +39,10 @@ jobs:
           DISPLAY: :99
           _JAVA_OPTIONS: "-Djava.awt.headless=false"
         run: mvn -B clean test
+
+      - name: Upload JUnit test results
+        if: always()  # ensure it runs even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-results
+          path: target/surefire-reports/
