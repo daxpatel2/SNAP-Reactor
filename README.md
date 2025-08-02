@@ -2,6 +2,10 @@
 
 A comprehensive Java Maven project designed to help you learn and practice testing with **JUnit 5** and **AssertJ**. This project simulates a nuclear reactor system with various components and operations that provide rich testing scenarios.
 
+## Current Tests
+![Tests](https://github.com/daxpatel2/SNAP-Reactor/actions/workflows/test.yml/badge.svg)
+
+
 ## 🎯 Learning Objectives
 
 This project will help you master:

@@ -22,12 +22,16 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.clearInvocations;
 
+import org.junit.jupiter.api.Timeout;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Comprehensive test class for the ReactorSimulatorApp Swing application using JUnit 5, AssertJ, and Mockito.
  * Demonstrates GUI testing techniques including mocking and UI component testing.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Reactor Simulator App Tests")
+@Timeout(value = 10, unit = TimeUnit.SECONDS)
 class ReactorSimulatorControllerTest {
 
     private ReactorSimulatorApp app;
