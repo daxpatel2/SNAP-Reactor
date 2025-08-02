@@ -46,3 +46,10 @@ jobs:
         with:
           name: junit-test-results
           path: target/surefire-reports/
+
+      - name: Upload JaCoCo Results
+        if: always()  # ensure it runs even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-results
+          path: target/site/jacoco/
