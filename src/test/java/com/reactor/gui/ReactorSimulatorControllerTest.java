@@ -426,7 +426,6 @@ class ReactorSimulatorControllerTest {
         @DisplayName("Should mock performance report generation")
         void shouldMockPerformanceReportGeneration() {
             // Given
-            when(mockMonitorService.generatePerformanceReport(mockReactor)).thenReturn(mockPerformanceReport);
             when(mockPerformanceReport.getCurrentPower()).thenReturn(900.0);
             when(mockPerformanceReport.getCurrentEfficiency()).thenReturn(90.0);
             when(mockPerformanceReport.getPerformanceGrade()).thenReturn("A");
@@ -443,7 +442,6 @@ class ReactorSimulatorControllerTest {
             assertThat(report.isOperatingAtOptimalPower()).isTrue();
             assertThat(report.isOperatingAtOptimalEfficiency()).isTrue();
 
-//            verify(mockMonitorService).generatePerformanceReport(mockReactor);
         }
     }
 }
