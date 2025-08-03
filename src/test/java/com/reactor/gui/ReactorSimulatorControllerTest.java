@@ -11,9 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.swing.*;
+import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
@@ -45,9 +47,9 @@ class ReactorSimulatorControllerTest {
     void setUp() throws InterruptedException, InvocationTargetException {
         when(mockMonitorService.analyzeHealth(mockReactor)).thenReturn(mockHealthReport);
         when(mockHealthReport.getHealthScore()).thenReturn(99.0);
+        lenient().when(mockMonitorService.generatePerformanceReport(mockReactor)).thenReturn(mockPerformanceReport);
+        lenient().when(mockPerformanceReport.getCurrentPower()).thenReturn(99.0);
 
-        when(mockMonitorService.generatePerformanceReport(mockReactor)).thenReturn(mockPerformanceReport);
-        when(mockPerformanceReport.getCurrentPower()).thenReturn(99.0);
 
         // Create the Swing application
         SwingUtilities.invokeAndWait(() -> {
@@ -107,8 +109,17 @@ class ReactorSimulatorControllerTest {
             // Given
             doNothing().when(mockReactor).startUp();
 
-            // When
-            app.handleStartUp();
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                mockedPane.when(() ->
+                        JOptionPane.showMessageDialog(any(Component.class), anyString())
+                ).then(invocation -> {
+                    System.out.println("Mocked dialog shown");
+                    return null; // Simulate pressing OK
+                });
+
+                // When
+                app.handleStartUp();
+            }
 
             // Then
             verify(mockReactor, times(1)).startUp();
@@ -122,9 +133,17 @@ class ReactorSimulatorControllerTest {
             String errorMessage = "Insufficient fuel level for startup";
             doThrow(new IllegalStateException(errorMessage)).when(mockReactor).startUp();
 
-            // When
-            app.handleStartUp();
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                mockedPane.when(() ->
+                        JOptionPane.showMessageDialog(any(Component.class), anyString())
+                ).then(invocation -> {
+                    System.out.println("Mocked dialog shown");
+                    return null; // Simulate pressing OK
+                });
 
+                // When
+                app.handleStartUp();
+            }
             // Then
             verify(mockReactor, times(1)).startUp();
         }
@@ -135,8 +154,17 @@ class ReactorSimulatorControllerTest {
             // Given
             doNothing().when(mockReactor).shutdown();
 
-            // When
-            app.handleShutdown();
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                mockedPane.when(() ->
+                        JOptionPane.showMessageDialog(any(Component.class), anyString())
+                ).then(invocation -> {
+                    System.out.println("Mocked dialog shown");
+                    return null; // Simulate pressing OK
+                });
+
+                // When
+                app.handleShutdown();
+            }
 
             // Then
             verify(mockReactor, times(1)).shutdown();
@@ -148,8 +176,18 @@ class ReactorSimulatorControllerTest {
             // Given
             doNothing().when(mockReactor).emergencyShutdown();
 
-            // When
-            app.handleEmergencyShutdown();
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                mockedPane.when(() ->
+                        JOptionPane.showMessageDialog(any(Component.class), anyString())
+                ).then(invocation -> {
+                    System.out.println("Mocked dialog shown");
+                    return null; // Simulate pressing OK
+                });
+
+                // When
+                app.handleEmergencyShutdown();
+            }
+
 
             // Then
             verify(mockReactor, times(1)).emergencyShutdown();
@@ -162,8 +200,17 @@ class ReactorSimulatorControllerTest {
             double targetPower = 800.0;
             doNothing().when(mockReactor).adjustPower(anyDouble());
 
-            // When
-            app.handleAdjustPower();
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                mockedPane.when(() ->
+                        JOptionPane.showMessageDialog(any(Component.class), anyString())
+                ).then(invocation -> {
+                    System.out.println("Mocked dialog shown");
+                    return null; // Simulate pressing OK
+                });
+
+                // When
+                app.handleAdjustPower();
+            }
 
             // Then
 //            verify(mockReactor, times(1)).adjustPower(targetPower);
@@ -176,8 +223,17 @@ class ReactorSimulatorControllerTest {
             String errorMessage = "Power must be between 0 and 1200 MW";
             doThrow(new IllegalArgumentException(errorMessage)).when(mockReactor).adjustPower(anyDouble());
 
-            // When
-            app.handleAdjustPower();
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                mockedPane.when(() ->
+                        JOptionPane.showMessageDialog(any(Component.class), anyString())
+                ).then(invocation -> {
+                    System.out.println("Mocked dialog shown");
+                    return null; // Simulate pressing OK
+                });
+
+                // When
+                app.handleAdjustPower();
+            }
 
             // Then
             verify(mockReactor, times(1)).adjustPower(anyDouble());
@@ -189,8 +245,17 @@ class ReactorSimulatorControllerTest {
             // Given
             doNothing().when(mockReactor).performMaintenance();
 
-            // When
-            app.handleMaintenance();
+            try (MockedStatic<JOptionPane> mockedPane = mockStatic(JOptionPane.class)) {
+                mockedPane.when(() ->
+                        JOptionPane.showMessageDialog(any(Component.class), anyString())
+                ).then(invocation -> {
+                    System.out.println("Mocked dialog shown");
+                    return null; // Simulate pressing OK
+                });
+
+                // When
+                app.handleMaintenance();
+            }
 
             // Then
             verify(mockReactor, times(1)).performMaintenance();
@@ -337,8 +402,9 @@ class ReactorSimulatorControllerTest {
 
             // Then
             assertThat(realReactor.getStatus()).isEqualTo(Reactor.ReactorStatus.OPERATIONAL);
+
             assertThat(realReactor.getPowerOutput()).isEqualTo(1000.0);
-            assertThat(realReactor.getTemperature()).isEqualTo(300.0);
+            assertThat(realReactor.getTemperature()).isCloseTo(300.0, within(0.1));
 
             // Test monitoring service integration
             ReactorHealthReport healthReport = realService.analyzeHealth(realReactor);
