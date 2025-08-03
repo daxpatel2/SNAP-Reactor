@@ -45,8 +45,8 @@ class ReactorSimulatorControllerTest {
 
     @BeforeEach
     void setUp() throws InterruptedException, InvocationTargetException {
-        when(mockMonitorService.analyzeHealth(mockReactor)).thenReturn(mockHealthReport);
-        when(mockHealthReport.getHealthScore()).thenReturn(99.0);
+        lenient().when(mockMonitorService.analyzeHealth(mockReactor)).thenReturn(mockHealthReport);
+        lenient().when(mockHealthReport.getHealthScore()).thenReturn(99.0);
         lenient().when(mockMonitorService.generatePerformanceReport(mockReactor)).thenReturn(mockPerformanceReport);
         lenient().when(mockPerformanceReport.getCurrentPower()).thenReturn(99.0);
 
